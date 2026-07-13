@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Offline — AgriFlow AI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #064e3b, #022c22);
+      color: #ecfdf5;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      max-width: 420px;
+      padding: 40px 32px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      backdrop-filter: blur(8px);
+    }
+    .leaf {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      border-radius: 16px;
+      background: #059669;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+    }
+    h1 { font-size: 22px; margin-bottom: 10px; }
+    p { font-size: 14px; line-height: 1.6; color: #a7f3d0; }
+    button {
+      margin-top: 24px;
+      padding: 12px 28px;
+      min-height: 44px;
+      border: none;
+      border-radius: 10px;
+      background: #10b981;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #059669; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="leaf">🌿</div>
+    <h1>You're offline</h1>
+    <p>
+      AgriFlow AI can't reach the network right now. Your dashboards need a
+      connection to load live data. Check your internet and try again.
+    </p>
+    <button onclick="location.reload()">Try again</button>
+  </div>
+</body>
+</html>
