@@ -10,10 +10,16 @@ export async function notify(
   type: NotificationType = "info"
 ) {
   const supabase = createClient();
-  await supabase.from("notifications").insert({
+  const { error } = await supabase.from("notifications").insert({
     user_id: userId,
     title,
     message,
     type,
   });
+  // Notifications are a best-effort side effect: a failure here must not roll
+  // back the action that triggered it, but it should never be swallowed
+  // silently either.
+  if (error) {
+    console.error("[agriflow] Notify failed:", error);
+  }
 }
