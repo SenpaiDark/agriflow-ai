@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { assertOk, unwrapMaybe } from "@/lib/supabase/errors";
 import { notify } from "@/lib/notify";
 import {
   scheduleOrders,
@@ -17,26 +18,30 @@ import {
 export async function runScheduling() {
   const supabase = createClient();
 
-  const [
-    { data: orders },
-    { data: warehouses },
-    { data: transporters },
-    { data: activeDeliveries },
-  ] = await Promise.all([
-    supabase
-      .from("orders")
-      .select("*, harvests(harvest_date, shelf_life_days)")
-      .eq("status", "confirmed"),
-    supabase.from("warehouses").select("id, name, lat, lng"),
-    supabase
-      .from("profiles")
-      .select("id, full_name, created_at")
-      .eq("role", "transporter"),
-    supabase
-      .from("deliveries")
-      .select("transporter_id")
-      .neq("status", "delivered"),
-  ]);
+  const [ordersRes, warehousesRes, transportersRes, activeDeliveriesRes] =
+    await Promise.all([
+      supabase
+        .from("orders")
+        .select("*, harvests(harvest_date, shelf_life_days)")
+        .eq("status", "confirmed"),
+      supabase.from("warehouses").select("id, name, lat, lng"),
+      supabase
+        .from("profiles")
+        .select("id, full_name, created_at")
+        .eq("role", "transporter"),
+      supabase
+        .from("deliveries")
+        .select("transporter_id")
+        .neq("status", "delivered"),
+    ]);
+
+  const orders = unwrapMaybe(ordersRes, "Load confirmed orders");
+  const warehouses = unwrapMaybe(warehousesRes, "Load warehouses");
+  const transporters = unwrapMaybe(transportersRes, "Load transporters");
+  const activeDeliveries = unwrapMaybe(
+    activeDeliveriesRes,
+    "Load active deliveries"
+  );
 
   // Least-busy assignment: transporters with the fewest open deliveries first.
   const load = new Map<string, number>();
@@ -88,23 +93,29 @@ export async function runScheduling() {
     const d = plan[i];
     const transporter = pickTransporter();
 
-    await supabase.from("deliveries").insert({
-      order_id: d.order_id,
-      transporter_id: transporter?.id ?? null,
-      pickup_label: d.pickup_label,
-      pickup_lat: d.pickup_lat,
-      pickup_lng: d.pickup_lng,
-      dropoff_label: d.dropoff_label,
-      dropoff_lat: d.dropoff_lat,
-      dropoff_lng: d.dropoff_lng,
-      scheduled_date: d.scheduled_date,
-      distance_km: d.distance_km,
-    });
+    assertOk(
+      await supabase.from("deliveries").insert({
+        order_id: d.order_id,
+        transporter_id: transporter?.id ?? null,
+        pickup_label: d.pickup_label,
+        pickup_lat: d.pickup_lat,
+        pickup_lng: d.pickup_lng,
+        dropoff_label: d.dropoff_label,
+        dropoff_lat: d.dropoff_lat,
+        dropoff_lng: d.dropoff_lng,
+        scheduled_date: d.scheduled_date,
+        distance_km: d.distance_km,
+      }),
+      "Create delivery"
+    );
 
-    await supabase
-      .from("orders")
-      .update({ status: "scheduled" })
-      .eq("id", d.order_id);
+    assertOk(
+      await supabase
+        .from("orders")
+        .update({ status: "scheduled" })
+        .eq("id", d.order_id),
+      "Mark order scheduled"
+    );
 
     const order = orders.find((o) => o.id === d.order_id);
     if (order) {
