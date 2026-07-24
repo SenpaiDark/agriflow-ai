@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { currentUserAndRole } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 import {
   scheduleOrders,
@@ -16,6 +17,13 @@ import {
  */
 export async function runScheduling() {
   const supabase = createClient();
+
+  // Scheduling is an admin-only operation.
+  const { user, role } = await currentUserAndRole();
+  if (!user) return { scheduled: 0, message: "You are signed out." };
+  if (role !== "admin") {
+    return { scheduled: 0, message: "Only admins can run the scheduler." };
+  }
 
   const [
     { data: orders },

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { currentUserAndRole } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 
 export async function placeOrder(formData: FormData) {
@@ -13,6 +14,7 @@ export async function placeOrder(formData: FormData) {
 
   const harvestId = String(formData.get("harvest_id"));
   const quantity = Number(formData.get("quantity"));
+  if (!Number.isFinite(quantity) || quantity <= 0) return;
 
   const { data: harvest } = await supabase
     .from("harvests")
@@ -65,7 +67,19 @@ export async function placeOrder(formData: FormData) {
 
 export async function confirmOrder(formData: FormData) {
   const supabase = createClient();
+  const { user, role } = await currentUserAndRole();
+  if (!user) return;
+
   const orderId = String(formData.get("order_id"));
+
+  // Only the farmer who owns the order (or an admin) may confirm it.
+  const { data: existing } = await supabase
+    .from("orders")
+    .select("farmer_id")
+    .eq("id", orderId)
+    .single();
+  if (!existing) return;
+  if (existing.farmer_id !== user.id && role !== "admin") return;
 
   const { data: order } = await supabase
     .from("orders")
@@ -89,7 +103,25 @@ export async function confirmOrder(formData: FormData) {
 
 export async function cancelOrder(formData: FormData) {
   const supabase = createClient();
+  const { user, role } = await currentUserAndRole();
+  if (!user) return;
+
   const orderId = String(formData.get("order_id"));
+
+  // Only the buyer or farmer on the order (or an admin) may cancel it.
+  const { data: existing } = await supabase
+    .from("orders")
+    .select("buyer_id, farmer_id")
+    .eq("id", orderId)
+    .single();
+  if (!existing) return;
+  if (
+    existing.buyer_id !== user.id &&
+    existing.farmer_id !== user.id &&
+    role !== "admin"
+  ) {
+    return;
+  }
 
   const { data: order } = await supabase
     .from("orders")

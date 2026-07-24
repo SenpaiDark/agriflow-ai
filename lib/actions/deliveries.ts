@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { currentUserAndRole } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 import type { DeliveryStatus, OrderStatus } from "@/lib/types";
 
@@ -20,6 +21,9 @@ const ORDER_STATUS_FOR: Record<DeliveryStatus, OrderStatus | null> = {
 
 export async function advanceDelivery(formData: FormData) {
   const supabase = createClient();
+  const { user, role } = await currentUserAndRole();
+  if (!user) return;
+
   const deliveryId = String(formData.get("delivery_id"));
 
   const { data: delivery } = await supabase
@@ -28,6 +32,9 @@ export async function advanceDelivery(formData: FormData) {
     .eq("id", deliveryId)
     .single();
   if (!delivery) return;
+
+  // Only the transporter assigned to this delivery (or an admin) may advance it.
+  if (delivery.transporter_id !== user.id && role !== "admin") return;
 
   const next = NEXT_STATUS[delivery.status];
   if (!next) return;

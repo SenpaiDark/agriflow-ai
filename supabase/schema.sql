@@ -204,7 +204,10 @@ create policy "harvests read" on public.harvests
 create policy "harvests insert" on public.harvests
   for insert to authenticated with check (farmer_id = auth.uid());
 create policy "harvests update" on public.harvests
-  for update to authenticated using (true);
+  for update to authenticated using (
+    farmer_id = auth.uid()
+    or get_my_role() in ('buyer','warehouse_manager','admin')
+  );
 create policy "harvests delete" on public.harvests
   for delete to authenticated using (farmer_id = auth.uid() or get_my_role() = 'admin');
 
@@ -234,22 +237,28 @@ create policy "movements write" on public.stock_movements
   for insert to authenticated with check (get_my_role() in ('warehouse_manager','admin'));
 
 -- Orders: buyers create their own; parties involved can read; status updates
--- allowed to involved roles.
+-- restricted to the buyer, the farmer, an assigned transporter, or an admin.
 create policy "orders read" on public.orders
   for select to authenticated using (true);
 create policy "orders insert" on public.orders
   for insert to authenticated with check (buyer_id = auth.uid());
 create policy "orders update" on public.orders
-  for update to authenticated using (true);
+  for update to authenticated using (
+    buyer_id = auth.uid()
+    or farmer_id = auth.uid()
+    or get_my_role() in ('transporter','admin')
+  );
 
--- Deliveries: created by scheduling (farmer/warehouse/admin), transporters
--- update status, all read.
+-- Deliveries: created by scheduling (warehouse/admin); only the assigned
+-- transporter (or an admin) advances status.
 create policy "deliveries read" on public.deliveries
   for select to authenticated using (true);
 create policy "deliveries insert" on public.deliveries
-  for insert to authenticated with check (true);
+  for insert to authenticated with check (get_my_role() in ('warehouse_manager','admin'));
 create policy "deliveries update" on public.deliveries
-  for update to authenticated using (true);
+  for update to authenticated using (
+    transporter_id = auth.uid() or get_my_role() = 'admin'
+  );
 
 -- Notifications: private to the recipient; anyone signed in can create one
 -- for another user (rule-based notifications fired from server actions).

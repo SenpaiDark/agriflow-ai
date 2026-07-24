@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { currentUserAndRole } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 
 export async function createCrop(formData: FormData) {
@@ -27,20 +28,31 @@ export async function createCrop(formData: FormData) {
 
 export async function updateCropStatus(formData: FormData) {
   const supabase = createClient();
-  await supabase
+  const { user, role } = await currentUserAndRole();
+  if (!user) return;
+
+  // Farmers may only touch their own crops; admins may touch any.
+  let query = supabase
     .from("crops")
     .update({ status: String(formData.get("status")) })
     .eq("id", String(formData.get("crop_id")));
+  if (role !== "admin") query = query.eq("farmer_id", user.id);
+  await query;
 
   revalidatePath("/dashboard/farmer", "layout");
 }
 
 export async function deleteCrop(formData: FormData) {
   const supabase = createClient();
-  await supabase
+  const { user, role } = await currentUserAndRole();
+  if (!user) return;
+
+  let query = supabase
     .from("crops")
     .delete()
     .eq("id", String(formData.get("crop_id")));
+  if (role !== "admin") query = query.eq("farmer_id", user.id);
+  await query;
 
   revalidatePath("/dashboard/farmer", "layout");
 }
@@ -53,11 +65,14 @@ export async function createHarvest(formData: FormData) {
   if (!user) return;
 
   const cropId = String(formData.get("crop_id"));
+  // The crop must belong to the farmer recording the harvest.
   const { data: crop } = await supabase
     .from("crops")
     .select("name")
     .eq("id", cropId)
+    .eq("farmer_id", user.id)
     .single();
+  if (!crop) return;
 
   // Insert, crop status update and notification are independent — run together.
   await Promise.all([

@@ -2,10 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { currentUserAndRole } from "@/lib/auth";
 import { notify } from "@/lib/notify";
+
+const WAREHOUSE_ROLES = ["warehouse_manager", "admin"];
 
 export async function addInventory(formData: FormData) {
   const supabase = createClient();
+  const { user, role } = await currentUserAndRole();
+  if (!user || !WAREHOUSE_ROLES.includes(role ?? "")) return;
 
   const { data: item } = await supabase
     .from("inventory_items")
@@ -35,6 +40,9 @@ export async function addInventory(formData: FormData) {
 
 export async function dispatchInventory(formData: FormData) {
   const supabase = createClient();
+  const { user, role } = await currentUserAndRole();
+  if (!user || !WAREHOUSE_ROLES.includes(role ?? "")) return;
+
   const itemId = String(formData.get("item_id"));
   const quantity = Number(formData.get("quantity"));
 
@@ -70,6 +78,9 @@ export async function dispatchInventory(formData: FormData) {
 
 export async function markSpoiled(formData: FormData) {
   const supabase = createClient();
+  const { user: actor, role } = await currentUserAndRole();
+  if (!actor || !WAREHOUSE_ROLES.includes(role ?? "")) return;
+
   const itemId = String(formData.get("item_id"));
 
   const { data: item } = await supabase
@@ -88,17 +99,12 @@ export async function markSpoiled(formData: FormData) {
       note: "Marked spoiled (shelf life exceeded)",
     });
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      await notify(
-        user.id,
-        "Stock spoiled",
-        `${item.quantity} ${item.unit} of ${item.product_name} was written off as spoiled.`,
-        "alert"
-      );
-    }
+    await notify(
+      actor.id,
+      "Stock spoiled",
+      `${item.quantity} ${item.unit} of ${item.product_name} was written off as spoiled.`,
+      "alert"
+    );
   }
 
   revalidatePath("/dashboard/warehouse", "layout");
@@ -106,10 +112,8 @@ export async function markSpoiled(formData: FormData) {
 
 export async function createWarehouse(formData: FormData) {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return;
+  const { user, role } = await currentUserAndRole();
+  if (!user || !WAREHOUSE_ROLES.includes(role ?? "")) return;
 
   await supabase.from("warehouses").insert({
     name: String(formData.get("name")),

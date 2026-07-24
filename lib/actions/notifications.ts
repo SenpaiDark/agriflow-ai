@@ -5,10 +5,16 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function markNotificationRead(formData: FormData) {
   const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
   await supabase
     .from("notifications")
     .update({ read: true })
-    .eq("id", String(formData.get("notification_id")));
+    .eq("id", String(formData.get("notification_id")))
+    .eq("user_id", user.id);
 
   revalidatePath("/dashboard", "layout");
 }
