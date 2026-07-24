@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { assertOk, unwrapMaybe } from "@/lib/supabase/errors";
 import { currentUserAndRole } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 
@@ -12,27 +13,33 @@ export async function addInventory(formData: FormData) {
   const { user, role } = await currentUserAndRole();
   if (!user || !WAREHOUSE_ROLES.includes(role ?? "")) return;
 
-  const { data: item } = await supabase
-    .from("inventory_items")
-    .insert({
-      warehouse_id: String(formData.get("warehouse_id")),
-      product_name: String(formData.get("product_name")),
-      quantity: Number(formData.get("quantity")),
-      unit: String(formData.get("unit") || "kg"),
-      entry_date: String(formData.get("entry_date")),
-      shelf_life_days: Number(formData.get("shelf_life_days") || 7),
-    })
-    .select()
-    .single();
+  const item = unwrapMaybe(
+    await supabase
+      .from("inventory_items")
+      .insert({
+        warehouse_id: String(formData.get("warehouse_id")),
+        product_name: String(formData.get("product_name")),
+        quantity: Number(formData.get("quantity")),
+        unit: String(formData.get("unit") || "kg"),
+        entry_date: String(formData.get("entry_date")),
+        shelf_life_days: Number(formData.get("shelf_life_days") || 7),
+      })
+      .select()
+      .single(),
+    "Add inventory"
+  );
 
   if (item) {
-    await supabase.from("stock_movements").insert({
-      warehouse_id: item.warehouse_id,
-      inventory_item_id: item.id,
-      type: "in",
-      quantity: item.quantity,
-      note: "Stock received",
-    });
+    assertOk(
+      await supabase.from("stock_movements").insert({
+        warehouse_id: item.warehouse_id,
+        inventory_item_id: item.id,
+        type: "in",
+        quantity: item.quantity,
+        note: "Stock received",
+      }),
+      "Log stock movement"
+    );
   }
 
   revalidatePath("/dashboard/warehouse", "layout");
@@ -46,32 +53,37 @@ export async function dispatchInventory(formData: FormData) {
   const itemId = String(formData.get("item_id"));
   const quantity = Number(formData.get("quantity"));
 
-  const { data: item } = await supabase
-    .from("inventory_items")
-    .select("*")
-    .eq("id", itemId)
-    .single();
+  const item = unwrapMaybe(
+    await supabase.from("inventory_items").select("*").eq("id", itemId).single(),
+    "Load inventory item"
+  );
   if (!item || item.status !== "in_storage") return;
 
   const outQty = Math.min(quantity, Number(item.quantity));
   if (outQty <= 0) return;
 
   const remaining = Number(item.quantity) - outQty;
-  await supabase
-    .from("inventory_items")
-    .update({
-      quantity: remaining,
-      status: remaining <= 0 ? "dispatched" : "in_storage",
-    })
-    .eq("id", itemId);
+  assertOk(
+    await supabase
+      .from("inventory_items")
+      .update({
+        quantity: remaining,
+        status: remaining <= 0 ? "dispatched" : "in_storage",
+      })
+      .eq("id", itemId),
+    "Update inventory item"
+  );
 
-  await supabase.from("stock_movements").insert({
-    warehouse_id: item.warehouse_id,
-    inventory_item_id: itemId,
-    type: "out",
-    quantity: outQty,
-    note: String(formData.get("note") || "Stock dispatched"),
-  });
+  assertOk(
+    await supabase.from("stock_movements").insert({
+      warehouse_id: item.warehouse_id,
+      inventory_item_id: itemId,
+      type: "out",
+      quantity: outQty,
+      note: String(formData.get("note") || "Stock dispatched"),
+    }),
+    "Log stock movement"
+  );
 
   revalidatePath("/dashboard/warehouse", "layout");
 }
@@ -83,21 +95,27 @@ export async function markSpoiled(formData: FormData) {
 
   const itemId = String(formData.get("item_id"));
 
-  const { data: item } = await supabase
-    .from("inventory_items")
-    .update({ status: "spoiled" })
-    .eq("id", itemId)
-    .select()
-    .single();
+  const item = unwrapMaybe(
+    await supabase
+      .from("inventory_items")
+      .update({ status: "spoiled" })
+      .eq("id", itemId)
+      .select()
+      .single(),
+    "Mark inventory spoiled"
+  );
 
   if (item) {
-    await supabase.from("stock_movements").insert({
-      warehouse_id: item.warehouse_id,
-      inventory_item_id: itemId,
-      type: "out",
-      quantity: item.quantity,
-      note: "Marked spoiled (shelf life exceeded)",
-    });
+    assertOk(
+      await supabase.from("stock_movements").insert({
+        warehouse_id: item.warehouse_id,
+        inventory_item_id: itemId,
+        type: "out",
+        quantity: item.quantity,
+        note: "Marked spoiled (shelf life exceeded)",
+      }),
+      "Log stock movement"
+    );
 
     await notify(
       actor.id,
@@ -115,14 +133,17 @@ export async function createWarehouse(formData: FormData) {
   const { user, role } = await currentUserAndRole();
   if (!user || !WAREHOUSE_ROLES.includes(role ?? "")) return;
 
-  await supabase.from("warehouses").insert({
-    name: String(formData.get("name")),
-    manager_id: user.id,
-    location: String(formData.get("location")),
-    lat: Number(formData.get("lat")),
-    lng: Number(formData.get("lng")),
-    capacity: Number(formData.get("capacity") || 10000),
-  });
+  assertOk(
+    await supabase.from("warehouses").insert({
+      name: String(formData.get("name")),
+      manager_id: user.id,
+      location: String(formData.get("location")),
+      lat: Number(formData.get("lat")),
+      lng: Number(formData.get("lng")),
+      capacity: Number(formData.get("capacity") || 10000),
+    }),
+    "Create warehouse"
+  );
 
   revalidatePath("/dashboard/warehouse", "layout");
 }

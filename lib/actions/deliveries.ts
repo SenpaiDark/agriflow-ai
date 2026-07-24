@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { assertOk, unwrapMaybe } from "@/lib/supabase/errors";
 import { currentUserAndRole } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 import type { DeliveryStatus, OrderStatus } from "@/lib/types";
@@ -26,11 +27,10 @@ export async function advanceDelivery(formData: FormData) {
 
   const deliveryId = String(formData.get("delivery_id"));
 
-  const { data: delivery } = await supabase
-    .from("deliveries")
-    .select("*")
-    .eq("id", deliveryId)
-    .single();
+  const delivery = unwrapMaybe(
+    await supabase.from("deliveries").select("*").eq("id", deliveryId).single(),
+    "Load delivery"
+  );
   if (!delivery) return;
 
   // Only the transporter assigned to this delivery (or an admin) may advance it.
@@ -39,23 +39,22 @@ export async function advanceDelivery(formData: FormData) {
   const next = NEXT_STATUS[delivery.status];
   if (!next) return;
 
-  await supabase
-    .from("deliveries")
-    .update({ status: next })
-    .eq("id", deliveryId);
+  assertOk(
+    await supabase.from("deliveries").update({ status: next }).eq("id", deliveryId),
+    "Advance delivery"
+  );
 
   const orderStatus = ORDER_STATUS_FOR[next];
-  const { data: order } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("id", delivery.order_id)
-    .single();
+  const order = unwrapMaybe(
+    await supabase.from("orders").select("*").eq("id", delivery.order_id).single(),
+    "Load order for delivery"
+  );
 
   if (order && orderStatus) {
-    await supabase
-      .from("orders")
-      .update({ status: orderStatus })
-      .eq("id", order.id);
+    assertOk(
+      await supabase.from("orders").update({ status: orderStatus }).eq("id", order.id),
+      "Update order status"
+    );
 
     const labels: Record<DeliveryStatus, string> = {
       assigned: "assigned",
