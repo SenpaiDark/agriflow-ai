@@ -14,12 +14,9 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, Td } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatDate, formatNumber } from "@/lib/utils";
+import { formatDate, formatNumber, inputClass } from "@/lib/utils";
 
 export const metadata = { title: "Inventory" };
-
-const inputClass =
-  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
 
 export default async function InventoryPage({
   searchParams,

@@ -8,12 +8,9 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { SearchForm } from "@/components/ui/search-form";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatCurrency, formatDate, formatNumber } from "@/lib/utils";
+import { formatCurrency, formatDate, formatNumber, inputClass } from "@/lib/utils";
 
 export const metadata = { title: "Browse Produce" };
-
-const inputClass =
-  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
 
 export default async function BrowsePage({
   searchParams,

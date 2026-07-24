@@ -6,12 +6,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatNumber, cn } from "@/lib/utils";
+import { formatNumber, cn, inputClass } from "@/lib/utils";
 
 export const metadata = { title: "Warehouses" };
-
-const inputClass =
-  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
 
 export default async function LocationsPage() {
   await requireRole(["warehouse_manager"]);

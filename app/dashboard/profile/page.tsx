@@ -6,12 +6,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { formatDate } from "@/lib/utils";
+import { formatDate, inputClassLg as inputClass } from "@/lib/utils";
 
 export const metadata = { title: "My Profile" };
-
-const inputClass =
-  "w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
 
 export default async function ProfilePage() {
   const profile = await requireProfile();

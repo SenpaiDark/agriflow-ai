@@ -5,6 +5,23 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Shared Tailwind classes for the text/select/date inputs used across forms. */
+export const inputClass =
+  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
+
+/** Slightly taller input variant used on the auth and profile forms. */
+export const inputClassLg =
+  "w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
+
+/** "1 order" / "2 orders" — pass an explicit plural for irregular words. */
+export function pluralize(
+  count: number,
+  singular: string,
+  plural = `${singular}s`
+) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
 export function formatDate(date: string | Date | null | undefined) {
   if (!date) return "—";
   return new Date(date).toLocaleDateString("en-US", {

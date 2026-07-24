@@ -7,7 +7,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, Td } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatCurrency, formatDate, formatNumber } from "@/lib/utils";
+import { formatCurrency, formatDate, formatNumber, pluralize } from "@/lib/utils";
 
 export const metadata = { title: "My Orders" };
 
@@ -33,7 +33,7 @@ export default async function BuyerOrdersPage() {
           <div className="px-6 pt-6">
             <CardHeader
               title="All orders"
-              subtitle={`${orders!.length} order${orders!.length === 1 ? "" : "s"}`}
+              subtitle={pluralize(orders!.length, "order")}
             />
           </div>
           <Table headers={["Product", "Farmer", "Qty", "Total", "Deliver to", "Date", "Status", ""]}>

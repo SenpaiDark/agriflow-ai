@@ -2,13 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getSessionUser } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 
 export async function createCrop(formData: FormData) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getSessionUser();
   if (!user) return;
 
   await supabase.from("crops").insert({
@@ -46,10 +44,7 @@ export async function deleteCrop(formData: FormData) {
 }
 
 export async function createHarvest(formData: FormData) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getSessionUser();
   if (!user) return;
 
   const cropId = String(formData.get("crop_id"));

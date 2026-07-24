@@ -8,6 +8,7 @@ import {
   type SchedulableOrder,
   type WarehousePoint,
 } from "@/lib/scheduling";
+import { pluralize } from "@/lib/utils";
 
 /**
  * Runs the rule-based scheduling engine over all confirmed orders:
@@ -128,7 +129,7 @@ export async function runScheduling() {
   revalidatePath("/dashboard", "layout");
   return {
     scheduled: plan.length,
-    message: `Scheduled ${plan.length} deliver${plan.length === 1 ? "y" : "ies"}.`,
+    message: `Scheduled ${pluralize(plan.length, "delivery", "deliveries")}.`,
   };
 }
 

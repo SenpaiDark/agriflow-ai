@@ -8,7 +8,7 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, formatDate, pluralize } from "@/lib/utils";
 
 export const metadata = { title: "Notifications" };
 
@@ -31,7 +31,7 @@ export default async function NotificationsPage() {
         title="Notifications"
         subtitle={
           unread.length > 0
-            ? `${unread.length} unread notification${unread.length === 1 ? "" : "s"}`
+            ? pluralize(unread.length, "unread notification")
             : "You're all caught up"
         }
         action={

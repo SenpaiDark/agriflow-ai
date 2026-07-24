@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getSessionUser } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 
 export async function addInventory(formData: FormData) {
@@ -105,10 +106,7 @@ export async function markSpoiled(formData: FormData) {
 }
 
 export async function createWarehouse(formData: FormData) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getSessionUser();
   if (!user) return;
 
   await supabase.from("warehouses").insert({

@@ -6,7 +6,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { RouteMapLoader } from "@/components/maps/route-map-loader";
 import type { RoutePoint } from "@/components/maps/route-map";
-import { formatDate } from "@/lib/utils";
+import { formatDate, pluralize } from "@/lib/utils";
 
 export const metadata = { title: "Route Map" };
 
@@ -41,7 +41,7 @@ export default async function RoutesPage() {
           <div className="px-6 pt-6">
             <CardHeader
               title="Active delivery routes"
-              subtitle={`${routes.length} route${routes.length === 1 ? "" : "s"} on the map`}
+              subtitle={`${pluralize(routes.length, "route")} on the map`}
             />
           </div>
           <div className="h-[520px] px-6 pb-6">

@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { getSessionUser } from "@/lib/auth";
 import { askGemini, type GeminiResult } from "@/lib/gemini";
 import { buildWeeklySeries, forecastDemand } from "@/lib/forecasting";
 
@@ -10,10 +10,7 @@ import { buildWeeklySeries, forecastDemand } from "@/lib/forecasting";
  * chat can show it — the rest of the app never depends on Gemini.
  */
 export async function askAssistant(question: string): Promise<GeminiResult> {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getSessionUser();
   if (!user) return { text: null, error: "You are signed out." };
 
   const [{ data: profile }, { data: orders }, { data: inventory }] =

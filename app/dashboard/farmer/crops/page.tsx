@@ -8,7 +8,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, Td } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatDate, formatNumber } from "@/lib/utils";
+import { formatDate, formatNumber, inputClass, pluralize } from "@/lib/utils";
 
 export const metadata = { title: "My Crops" };
 
@@ -20,9 +20,6 @@ const CROP_CATEGORIES = [
   "Legumes",
   "Other",
 ];
-
-const inputClass =
-  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
 
 export default async function CropsPage() {
   const profile = await requireRole(["farmer"]);
@@ -118,7 +115,7 @@ export default async function CropsPage() {
           <div className="px-6 pt-6">
             <CardHeader
               title="All crops"
-              subtitle={`${crops!.length} crop${crops!.length === 1 ? "" : "s"} recorded`}
+              subtitle={`${pluralize(crops!.length, "crop")} recorded`}
             />
           </div>
           <Table headers={["Crop", "Category", "Planted", "Expected harvest", "Est. yield", "Status", "Actions"]}>

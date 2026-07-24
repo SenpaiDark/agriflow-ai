@@ -9,7 +9,7 @@ import { WELCOME_FLAG } from "@/contexts/auth-context";
 import { USER_ROLES } from "@/lib/types";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { PasswordInput } from "@/components/auth/password-input";
-import { cn } from "@/lib/utils";
+import { cn, inputClassLg as inputClass } from "@/lib/utils";
 
 const REQUIREMENTS: { label: string; test: (p: string) => boolean }[] = [
   { label: "At least 8 characters", test: (p) => p.length >= 8 },
@@ -54,9 +54,6 @@ function generatePassword(): string {
     })
     .join("");
 }
-
-const inputClass =
-  "w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
 
 export default function SignupPage() {
   const router = useRouter();

@@ -3,6 +3,19 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, UserRole } from "@/lib/types";
 
+/**
+ * Server-action helper: a Supabase client plus the current user (or null when
+ * signed out). Unlike {@link requireProfile} it never redirects, so actions can
+ * bail quietly with `if (!user) return`.
+ */
+export async function getSessionUser() {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return { supabase, user };
+}
+
 export const ROLE_HOME: Record<UserRole, string> = {
   farmer: "/dashboard/farmer",
   buyer: "/dashboard/buyer",
