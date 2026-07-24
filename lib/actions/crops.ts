@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { assertOk, unwrapMaybe } from "@/lib/supabase/errors";
 import { notify } from "@/lib/notify";
 
 export async function createCrop(formData: FormData) {
@@ -11,36 +12,45 @@ export async function createCrop(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return;
 
-  await supabase.from("crops").insert({
-    farmer_id: user.id,
-    name: String(formData.get("name")),
-    category: String(formData.get("category")),
-    planting_date: String(formData.get("planting_date")),
-    expected_harvest_date: String(formData.get("expected_harvest_date")),
-    quantity_estimate: Number(formData.get("quantity_estimate")),
-    unit: String(formData.get("unit") || "kg"),
-    notes: String(formData.get("notes") || "") || null,
-  });
+  assertOk(
+    await supabase.from("crops").insert({
+      farmer_id: user.id,
+      name: String(formData.get("name")),
+      category: String(formData.get("category")),
+      planting_date: String(formData.get("planting_date")),
+      expected_harvest_date: String(formData.get("expected_harvest_date")),
+      quantity_estimate: Number(formData.get("quantity_estimate")),
+      unit: String(formData.get("unit") || "kg"),
+      notes: String(formData.get("notes") || "") || null,
+    }),
+    "Create crop"
+  );
 
   revalidatePath("/dashboard/farmer", "layout");
 }
 
 export async function updateCropStatus(formData: FormData) {
   const supabase = createClient();
-  await supabase
-    .from("crops")
-    .update({ status: String(formData.get("status")) })
-    .eq("id", String(formData.get("crop_id")));
+  assertOk(
+    await supabase
+      .from("crops")
+      .update({ status: String(formData.get("status")) })
+      .eq("id", String(formData.get("crop_id"))),
+    "Update crop status"
+  );
 
   revalidatePath("/dashboard/farmer", "layout");
 }
 
 export async function deleteCrop(formData: FormData) {
   const supabase = createClient();
-  await supabase
-    .from("crops")
-    .delete()
-    .eq("id", String(formData.get("crop_id")));
+  assertOk(
+    await supabase
+      .from("crops")
+      .delete()
+      .eq("id", String(formData.get("crop_id"))),
+    "Delete crop"
+  );
 
   revalidatePath("/dashboard/farmer", "layout");
 }
@@ -54,12 +64,15 @@ export async function createHarvest(formData: FormData) {
 
   const cropId = String(formData.get("crop_id"));
   // Only allow recording a harvest against the caller's own crop.
-  const { data: crop } = await supabase
-    .from("crops")
-    .select("name")
-    .eq("id", cropId)
-    .eq("farmer_id", user.id)
-    .single();
+  const crop = unwrapMaybe(
+    await supabase
+      .from("crops")
+      .select("name")
+      .eq("id", cropId)
+      .eq("farmer_id", user.id)
+      .single(),
+    "Load crop"
+  );
   if (!crop) return;
 
   const quantity = Number(formData.get("quantity"));
@@ -68,11 +81,11 @@ export async function createHarvest(formData: FormData) {
   if (!Number.isFinite(pricePerUnit) || pricePerUnit < 0) return;
 
   // Insert, crop status update and notification are independent — run together.
-  await Promise.all([
+  const [insertResult, updateResult] = await Promise.all([
     supabase.from("harvests").insert({
       crop_id: cropId,
       farmer_id: user.id,
-      product_name: crop?.name ?? "Produce",
+      product_name: crop.name,
       harvest_date: String(formData.get("harvest_date")),
       quantity,
       unit: String(formData.get("unit") || "kg"),
@@ -85,10 +98,12 @@ export async function createHarvest(formData: FormData) {
     notify(
       user.id,
       "Harvest recorded",
-      `${crop?.name ?? "Produce"} harvest is now listed for buyers.`,
+      `${crop.name} harvest is now listed for buyers.`,
       "success"
     ),
   ]);
+  assertOk(insertResult, "Record harvest");
+  assertOk(updateResult, "Mark crop harvested");
 
   revalidatePath("/dashboard/farmer", "layout");
   revalidatePath("/dashboard/buyer", "layout");

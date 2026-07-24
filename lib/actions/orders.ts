@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/auth";
+import { assertOk, unwrapMaybe } from "@/lib/supabase/errors";
 import { notify } from "@/lib/notify";
 
 export async function placeOrder(formData: FormData) {
@@ -16,11 +17,10 @@ export async function placeOrder(formData: FormData) {
   const quantity = Number(formData.get("quantity"));
   if (!Number.isFinite(quantity) || quantity <= 0) return;
 
-  const { data: harvest } = await supabase
-    .from("harvests")
-    .select("*")
-    .eq("id", harvestId)
-    .single();
+  const harvest = unwrapMaybe(
+    await supabase.from("harvests").select("*").eq("id", harvestId).single(),
+    "Load harvest"
+  );
   if (!harvest || harvest.status !== "available") return;
 
   const available = Number(harvest.quantity);
@@ -31,17 +31,20 @@ export async function placeOrder(formData: FormData) {
   // if a concurrent order already changed it, this update matches no row and
   // we abort instead of overselling.
   const remaining = available - qty;
-  const { data: updated } = await supabase
-    .from("harvests")
-    .update({
-      quantity: remaining,
-      status: remaining <= 0 ? "reserved" : "available",
-    })
-    .eq("id", harvestId)
-    .eq("status", "available")
-    .eq("quantity", available)
-    .select()
-    .single();
+  const updated = unwrapMaybe(
+    await supabase
+      .from("harvests")
+      .update({
+        quantity: remaining,
+        status: remaining <= 0 ? "reserved" : "available",
+      })
+      .eq("id", harvestId)
+      .eq("status", "available")
+      .eq("quantity", available)
+      .select()
+      .single(),
+    "Reserve harvest stock"
+  );
   if (!updated) return; // Lost the race — stock changed under us.
 
   // City select supplies "lat,lng"; used by nearest-warehouse routing.
@@ -51,18 +54,21 @@ export async function placeOrder(formData: FormData) {
   const lat = Number.isFinite(rawLat) ? rawLat : null;
   const lng = Number.isFinite(rawLng) ? rawLng : null;
 
-  await supabase.from("orders").insert({
-    buyer_id: user.id,
-    farmer_id: harvest.farmer_id,
-    harvest_id: harvestId,
-    product_name: harvest.product_name,
-    quantity: qty,
-    unit: harvest.unit,
-    total_price: qty * Number(harvest.price_per_unit),
-    delivery_address: String(formData.get("delivery_address")),
-    delivery_lat: lat,
-    delivery_lng: lng,
-  });
+  assertOk(
+    await supabase.from("orders").insert({
+      buyer_id: user.id,
+      farmer_id: harvest.farmer_id,
+      harvest_id: harvestId,
+      product_name: harvest.product_name,
+      quantity: qty,
+      unit: harvest.unit,
+      total_price: qty * Number(harvest.price_per_unit),
+      delivery_address: String(formData.get("delivery_address")),
+      delivery_lat: lat,
+      delivery_lng: lng,
+    }),
+    "Place order"
+  );
 
   await notify(
     harvest.farmer_id,
@@ -89,7 +95,7 @@ export async function confirmOrder(formData: FormData) {
     .eq("status", "pending");
   if (profile.role !== "admin") query = query.eq("farmer_id", profile.id);
 
-  const { data: order } = await query.select().single();
+  const order = unwrapMaybe(await query.select().single(), "Confirm order");
 
   if (order) {
     await notify(
@@ -119,23 +125,29 @@ export async function cancelOrder(formData: FormData) {
     query = query.or(`buyer_id.eq.${profile.id},farmer_id.eq.${profile.id}`);
   }
 
-  const { data: order } = await query.select().single();
+  const order = unwrapMaybe(await query.select().single(), "Cancel order");
 
   if (order) {
     // Return the quantity to the marketplace.
-    const { data: harvest } = await supabase
-      .from("harvests")
-      .select("quantity")
-      .eq("id", order.harvest_id)
-      .single();
-    if (harvest) {
+    const harvest = unwrapMaybe(
       await supabase
         .from("harvests")
-        .update({
-          quantity: Number(harvest.quantity) + Number(order.quantity),
-          status: "available",
-        })
-        .eq("id", order.harvest_id);
+        .select("quantity")
+        .eq("id", order.harvest_id)
+        .single(),
+      "Load harvest for restock"
+    );
+    if (harvest) {
+      assertOk(
+        await supabase
+          .from("harvests")
+          .update({
+            quantity: Number(harvest.quantity) + Number(order.quantity),
+            status: "available",
+          })
+          .eq("id", order.harvest_id),
+        "Restock harvest"
+      );
     }
 
     await notify(
