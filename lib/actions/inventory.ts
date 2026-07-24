@@ -72,10 +72,13 @@ export async function markSpoiled(formData: FormData) {
   const supabase = createClient();
   const itemId = String(formData.get("item_id"));
 
+  // Only stored items can be written off — guards against double write-offs
+  // on already-dispatched/spoiled rows.
   const { data: item } = await supabase
     .from("inventory_items")
     .update({ status: "spoiled" })
     .eq("id", itemId)
+    .eq("status", "in_storage")
     .select()
     .single();
 
@@ -111,13 +114,18 @@ export async function createWarehouse(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return;
 
+  const lat = Number(formData.get("lat"));
+  const lng = Number(formData.get("lng"));
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+  const capacity = Number(formData.get("capacity") || 10000);
+
   await supabase.from("warehouses").insert({
     name: String(formData.get("name")),
     manager_id: user.id,
     location: String(formData.get("location")),
-    lat: Number(formData.get("lat")),
-    lng: Number(formData.get("lng")),
-    capacity: Number(formData.get("capacity") || 10000),
+    lat,
+    lng,
+    capacity: Number.isFinite(capacity) ? capacity : 10000,
   });
 
   revalidatePath("/dashboard/warehouse", "layout");

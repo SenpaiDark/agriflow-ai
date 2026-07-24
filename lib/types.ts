@@ -13,6 +13,12 @@ export const USER_ROLES: { value: UserRole; label: string }[] = [
   { value: "admin", label: "Administrator" },
 ];
 
+/**
+ * Roles a visitor may pick during self-signup. `admin` is intentionally
+ * excluded — it can only be granted by an existing admin via updateUserRole.
+ */
+export const SIGNUP_ROLES = USER_ROLES.filter((r) => r.value !== "admin");
+
 export interface Profile {
   id: string;
   full_name: string;

@@ -19,12 +19,21 @@ returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
+declare
+  requested_role text := coalesce(new.raw_user_meta_data->>'role', 'buyer');
 begin
+  -- Never trust a client-supplied `admin` role: signup metadata is fully
+  -- attacker-controlled, so anything other than a self-serviceable role is
+  -- downgraded to 'buyer'. Admin is granted only via updateUserRole.
+  if requested_role not in ('farmer','buyer','transporter','warehouse_manager') then
+    requested_role := 'buyer';
+  end if;
+
   insert into public.profiles (id, full_name, role, phone, location)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', 'New User'),
-    coalesce(new.raw_user_meta_data->>'role', 'buyer'),
+    requested_role,
     new.raw_user_meta_data->>'phone',
     new.raw_user_meta_data->>'location'
   );
@@ -197,14 +206,17 @@ create policy "crops update" on public.crops
 create policy "crops delete" on public.crops
   for delete to authenticated using (farmer_id = auth.uid() or get_my_role() = 'admin');
 
--- Harvests: farmer owns; status changes also allowed to buyers/warehouse/admin
--- (order placement reserves stock, storage marks it stored).
+-- Harvests: farmer owns; status/stock changes also allowed to buyers (order
+-- placement reserves stock) and warehouse managers (storage marks it stored).
 create policy "harvests read" on public.harvests
   for select to authenticated using (true);
 create policy "harvests insert" on public.harvests
   for insert to authenticated with check (farmer_id = auth.uid());
 create policy "harvests update" on public.harvests
-  for update to authenticated using (true);
+  for update to authenticated using (
+    farmer_id = auth.uid()
+    or get_my_role() in ('buyer','warehouse_manager','admin')
+  );
 create policy "harvests delete" on public.harvests
   for delete to authenticated using (farmer_id = auth.uid() or get_my_role() = 'admin');
 
@@ -234,22 +246,31 @@ create policy "movements write" on public.stock_movements
   for insert to authenticated with check (get_my_role() in ('warehouse_manager','admin'));
 
 -- Orders: buyers create their own; parties involved can read; status updates
--- allowed to involved roles.
+-- restricted to the involved parties (buyer, farmer) plus the roles that move
+-- an order through the pipeline (transporter, warehouse manager, admin).
 create policy "orders read" on public.orders
   for select to authenticated using (true);
 create policy "orders insert" on public.orders
   for insert to authenticated with check (buyer_id = auth.uid());
 create policy "orders update" on public.orders
-  for update to authenticated using (true);
+  for update to authenticated using (
+    buyer_id = auth.uid()
+    or farmer_id = auth.uid()
+    or get_my_role() in ('transporter','warehouse_manager','admin')
+  );
 
--- Deliveries: created by scheduling (farmer/warehouse/admin), transporters
--- update status, all read.
+-- Deliveries: created by the scheduling engine (warehouse/admin), the assigned
+-- transporter advances status; all read.
 create policy "deliveries read" on public.deliveries
   for select to authenticated using (true);
 create policy "deliveries insert" on public.deliveries
-  for insert to authenticated with check (true);
+  for insert to authenticated
+  with check (get_my_role() in ('warehouse_manager','admin'));
 create policy "deliveries update" on public.deliveries
-  for update to authenticated using (true);
+  for update to authenticated using (
+    transporter_id = auth.uid()
+    or get_my_role() in ('warehouse_manager','admin')
+  );
 
 -- Notifications: private to the recipient; anyone signed in can create one
 -- for another user (rule-based notifications fired from server actions).

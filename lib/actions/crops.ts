@@ -53,11 +53,19 @@ export async function createHarvest(formData: FormData) {
   if (!user) return;
 
   const cropId = String(formData.get("crop_id"));
+  // Only allow recording a harvest against the caller's own crop.
   const { data: crop } = await supabase
     .from("crops")
     .select("name")
     .eq("id", cropId)
+    .eq("farmer_id", user.id)
     .single();
+  if (!crop) return;
+
+  const quantity = Number(formData.get("quantity"));
+  const pricePerUnit = Number(formData.get("price_per_unit"));
+  if (!Number.isFinite(quantity) || quantity <= 0) return;
+  if (!Number.isFinite(pricePerUnit) || pricePerUnit < 0) return;
 
   // Insert, crop status update and notification are independent — run together.
   await Promise.all([
@@ -66,10 +74,10 @@ export async function createHarvest(formData: FormData) {
       farmer_id: user.id,
       product_name: crop?.name ?? "Produce",
       harvest_date: String(formData.get("harvest_date")),
-      quantity: Number(formData.get("quantity")),
+      quantity,
       unit: String(formData.get("unit") || "kg"),
       quality_grade: String(formData.get("quality_grade") || "A"),
-      price_per_unit: Number(formData.get("price_per_unit")),
+      price_per_unit: pricePerUnit,
       shelf_life_days: Number(formData.get("shelf_life_days") || 7),
     }),
     // Harvest recorded means the crop cycle is complete.

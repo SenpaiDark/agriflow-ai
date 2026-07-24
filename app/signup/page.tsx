@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Loader2, UserPlus, Wand2, Check, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { WELCOME_FLAG } from "@/contexts/auth-context";
-import { USER_ROLES } from "@/lib/types";
+import { SIGNUP_ROLES } from "@/lib/types";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { PasswordInput } from "@/components/auth/password-input";
 import { cn } from "@/lib/utils";
@@ -168,7 +168,7 @@ export default function SignupPage() {
               onChange={(e) => update("role", e.target.value)}
               className={inputClass}
             >
-              {USER_ROLES.map((r) => (
+              {SIGNUP_ROLES.map((r) => (
                 <option key={r.value} value={r.value}>
                   {r.label}
                 </option>

@@ -16,14 +16,27 @@ export async function askAssistant(question: string): Promise<GeminiResult> {
   } = await supabase.auth.getUser();
   if (!user) return { text: null, error: "You are signed out." };
 
-  const [{ data: profile }, { data: orders }, { data: inventory }] =
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  // Non-admins only see orders they're a party to; admins see everything.
+  let ordersQuery = supabase
+    .from("orders")
+    .select("created_at, product_name, quantity, status, total_price")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (profile?.role !== "admin") {
+    ordersQuery = ordersQuery.or(
+      `buyer_id.eq.${user.id},farmer_id.eq.${user.id}`
+    );
+  }
+
+  const [{ data: orders }, { data: inventory }] =
     await Promise.all([
-      supabase.from("profiles").select("*").eq("id", user.id).single(),
-      supabase
-        .from("orders")
-        .select("created_at, product_name, quantity, status, total_price")
-        .order("created_at", { ascending: false })
-        .limit(100),
+      ordersQuery,
       supabase
         .from("inventory_items")
         .select("product_name, quantity, unit, status, entry_date, shelf_life_days")

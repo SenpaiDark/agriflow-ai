@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getProfile } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 import {
   scheduleOrders,
@@ -11,11 +12,17 @@ import {
 
 /**
  * Runs the rule-based scheduling engine over all confirmed orders:
- * creates deliveries (nearest warehouse as pickup), assigns transporters
- * round-robin, marks orders scheduled and notifies everyone involved.
+ * creates deliveries (nearest warehouse as pickup), assigns the least-busy
+ * transporter, marks orders scheduled and notifies everyone involved.
  */
 export async function runScheduling() {
   const supabase = createClient();
+
+  // Scheduling is an admin-only operation.
+  const profile = await getProfile();
+  if (profile?.role !== "admin") {
+    return { scheduled: 0, message: "Not authorized." };
+  }
 
   const [
     { data: orders },

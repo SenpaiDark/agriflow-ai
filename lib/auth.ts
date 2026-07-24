@@ -11,6 +11,26 @@ export const ROLE_HOME: Record<UserRole, string> = {
   admin: "/dashboard/admin",
 };
 
+/**
+ * Current user's profile without redirecting — for server actions where a
+ * redirect is inappropriate. Returns null when signed out or profile-less.
+ */
+export async function getProfile(): Promise<Profile | null> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  return (profile as Profile) ?? null;
+}
+
 /** Current user's profile, redirecting to /login when signed out. */
 export async function requireProfile(): Promise<Profile> {
   const supabase = createClient();
