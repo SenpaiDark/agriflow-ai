@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
+import { assertOk, unwrapMaybe } from "@/lib/supabase/errors";
 import { notify } from "@/lib/notify";
 
 export async function placeOrder(formData: FormData) {
@@ -12,11 +13,10 @@ export async function placeOrder(formData: FormData) {
   const harvestId = String(formData.get("harvest_id"));
   const quantity = Number(formData.get("quantity"));
 
-  const { data: harvest } = await supabase
-    .from("harvests")
-    .select("*")
-    .eq("id", harvestId)
-    .single();
+  const harvest = unwrapMaybe(
+    await supabase.from("harvests").select("*").eq("id", harvestId).single(),
+    "Load harvest"
+  );
   if (!harvest || harvest.status !== "available") return;
 
   const qty = Math.min(quantity, Number(harvest.quantity));
@@ -27,28 +27,34 @@ export async function placeOrder(formData: FormData) {
   const lat = coords.length === 2 ? coords[0] : null;
   const lng = coords.length === 2 ? coords[1] : null;
 
-  await supabase.from("orders").insert({
-    buyer_id: user.id,
-    farmer_id: harvest.farmer_id,
-    harvest_id: harvestId,
-    product_name: harvest.product_name,
-    quantity: qty,
-    unit: harvest.unit,
-    total_price: qty * Number(harvest.price_per_unit),
-    delivery_address: String(formData.get("delivery_address")),
-    delivery_lat: lat ? Number(lat) : null,
-    delivery_lng: lng ? Number(lng) : null,
-  });
+  assertOk(
+    await supabase.from("orders").insert({
+      buyer_id: user.id,
+      farmer_id: harvest.farmer_id,
+      harvest_id: harvestId,
+      product_name: harvest.product_name,
+      quantity: qty,
+      unit: harvest.unit,
+      total_price: qty * Number(harvest.price_per_unit),
+      delivery_address: String(formData.get("delivery_address")),
+      delivery_lat: lat ? Number(lat) : null,
+      delivery_lng: lng ? Number(lng) : null,
+    }),
+    "Place order"
+  );
 
   // Reduce remaining stock; fully bought harvests leave the marketplace.
   const remaining = Number(harvest.quantity) - qty;
-  await supabase
-    .from("harvests")
-    .update({
-      quantity: remaining,
-      status: remaining <= 0 ? "reserved" : "available",
-    })
-    .eq("id", harvestId);
+  assertOk(
+    await supabase
+      .from("harvests")
+      .update({
+        quantity: remaining,
+        status: remaining <= 0 ? "reserved" : "available",
+      })
+      .eq("id", harvestId),
+    "Update harvest stock"
+  );
 
   await notify(
     harvest.farmer_id,
@@ -65,13 +71,16 @@ export async function confirmOrder(formData: FormData) {
   const supabase = createClient();
   const orderId = String(formData.get("order_id"));
 
-  const { data: order } = await supabase
-    .from("orders")
-    .update({ status: "confirmed" })
-    .eq("id", orderId)
-    .eq("status", "pending")
-    .select()
-    .single();
+  const order = unwrapMaybe(
+    await supabase
+      .from("orders")
+      .update({ status: "confirmed" })
+      .eq("id", orderId)
+      .eq("status", "pending")
+      .select()
+      .single(),
+    "Confirm order"
+  );
 
   if (order) {
     await notify(
@@ -89,29 +98,38 @@ export async function cancelOrder(formData: FormData) {
   const supabase = createClient();
   const orderId = String(formData.get("order_id"));
 
-  const { data: order } = await supabase
-    .from("orders")
-    .update({ status: "cancelled" })
-    .eq("id", orderId)
-    .in("status", ["pending", "confirmed"])
-    .select()
-    .single();
+  const order = unwrapMaybe(
+    await supabase
+      .from("orders")
+      .update({ status: "cancelled" })
+      .eq("id", orderId)
+      .in("status", ["pending", "confirmed"])
+      .select()
+      .single(),
+    "Cancel order"
+  );
 
   if (order) {
     // Return the quantity to the marketplace.
-    const { data: harvest } = await supabase
-      .from("harvests")
-      .select("quantity")
-      .eq("id", order.harvest_id)
-      .single();
-    if (harvest) {
+    const harvest = unwrapMaybe(
       await supabase
         .from("harvests")
-        .update({
-          quantity: Number(harvest.quantity) + Number(order.quantity),
-          status: "available",
-        })
-        .eq("id", order.harvest_id);
+        .select("quantity")
+        .eq("id", order.harvest_id)
+        .single(),
+      "Load harvest for restock"
+    );
+    if (harvest) {
+      assertOk(
+        await supabase
+          .from("harvests")
+          .update({
+            quantity: Number(harvest.quantity) + Number(order.quantity),
+            status: "available",
+          })
+          .eq("id", order.harvest_id),
+        "Restock harvest"
+      );
     }
 
     await notify(
