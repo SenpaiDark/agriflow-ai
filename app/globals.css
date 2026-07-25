@@ -27,6 +27,39 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
+   3D Card hover — subtle perspective lift
+   --------------------------------------------------------------------------- */
+@keyframes cardShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.card-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.06) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: cardShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Page transition */
+.page-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* ---------------------------------------------------------------------------
    WelcomeSplash — full-screen post-login greeting
    --------------------------------------------------------------------------- */
 .welcome-overlay {

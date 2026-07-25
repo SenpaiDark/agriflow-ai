@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Leaf,
   LayoutDashboard,
@@ -93,14 +94,21 @@ export function Sidebar({ role }: { role: UserRole }) {
             href={item.href}
             onClick={() => setOpen(false)}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               active
-                ? "bg-emerald-50 text-emerald-700"
+                ? "text-emerald-700"
                 : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             )}
           >
-            <item.icon className="h-4 w-4 shrink-0" />
-            {item.label}
+            {active && (
+              <motion.span
+                layoutId="activeNav"
+                className="absolute inset-0 rounded-lg bg-emerald-50"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
+            <item.icon className="relative z-10 h-4 w-4 shrink-0" />
+            <span className="relative z-10">{item.label}</span>
           </Link>
         );
       })}

@@ -86,7 +86,6 @@ const FLOATING_CARDS = [
 
 export function Hero() {
   const [slide, setSlide] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const reduceMotion = useRef(false);
 
@@ -96,14 +95,16 @@ export function Hero() {
     ).matches;
   }, []);
 
+  // Auto-advance the carousel continuously — it never pauses on hover so the
+  // slideshow always keeps moving on its own.
   useEffect(() => {
-    if (paused) return;
+    if (reduceMotion.current) return;
     const id = setInterval(
       () => setSlide((s) => (s + 1) % SLIDES.length),
-      5000
+      4500
     );
     return () => clearInterval(id);
-  }, [paused]);
+  }, []);
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
     if (reduceMotion.current) return;
@@ -117,11 +118,7 @@ export function Hero() {
   return (
     <section
       className="relative min-h-[92vh] overflow-hidden"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => {
-        setPaused(false);
-        setMouse({ x: 0, y: 0 });
-      }}
+      onMouseLeave={() => setMouse({ x: 0, y: 0 })}
       onMouseMove={onMouseMove}
     >
       {/* Carousel backdrop */}

@@ -4,6 +4,7 @@ import { AuthProvider } from "@/contexts/auth-context";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/layout/navbar";
 import { WelcomeSplash } from "@/components/welcome-splash";
+import { PageTransition } from "@/components/ui/page-transition";
 
 export default async function DashboardLayout({
   children,
@@ -26,7 +27,7 @@ export default async function DashboardLayout({
         <div className="flex min-w-0 flex-1 flex-col">
           <Navbar profile={profile} unreadCount={count ?? 0} />
           <main className="flex-1 px-4 py-6 pb-24 lg:px-8 lg:pb-8">
-            {children}
+            <PageTransition>{children}</PageTransition>
           </main>
         </div>
       </div>

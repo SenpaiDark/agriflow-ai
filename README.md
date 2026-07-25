@@ -95,12 +95,12 @@ Playwright creates five fresh accounts (one per role) and walks the entire suppl
 
 Push to GitHub, import the repo in Vercel, set the three environment variables — done. The production build is clean and the PWA install prompt activates automatically on HTTPS.
 
-## Author
+## Contributors
 
-**Senpai Dark** (Daniel Atere)
-- GitHub: [SenpaiDark](https://github.com/SenpaiDark)
-- LinkedIn: [daniel-atere-b00727381](https://linkedin.com/in/daniel-atere-b00727381)
+- **Obayomi Samuel Oluwagbotemi** — Project Owner (CSC/22/124)
+- **Senpai Dark** (Daniel Atere) — Original Developer
+
 
 ## License
 
-MIT
+MIT – for educational use
