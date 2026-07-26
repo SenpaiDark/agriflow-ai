@@ -57,10 +57,10 @@ export default async function InventoryPage({
         </summary>
         <form action={addInventory} className="grid gap-4 border-t border-gray-100 p-6 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="inv-warehouse" className="mb-1 block text-sm font-medium text-gray-700">
               Warehouse
             </label>
-            <select name="warehouse_id" required className={inputClass}>
+            <select id="inv-warehouse" name="warehouse_id" required className={inputClass}>
               {(warehouses ?? []).map((w) => (
                 <option key={w.id} value={w.id}>
                   {w.name}
@@ -69,17 +69,18 @@ export default async function InventoryPage({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="inv-product" className="mb-1 block text-sm font-medium text-gray-700">
               Product
             </label>
-            <input name="product_name" required className={inputClass} placeholder="Tomatoes" />
+            <input id="inv-product" name="product_name" required className={inputClass} placeholder="Tomatoes" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="inv-qty" className="mb-1 block text-sm font-medium text-gray-700">
               Quantity
             </label>
             <div className="flex gap-2">
               <input
+                id="inv-qty"
                 name="quantity"
                 type="number"
                 min="1"
@@ -96,10 +97,11 @@ export default async function InventoryPage({
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="inv-entry-date" className="mb-1 block text-sm font-medium text-gray-700">
               Entry date
             </label>
             <input
+              id="inv-entry-date"
               name="entry_date"
               type="date"
               defaultValue={today}
@@ -108,10 +110,11 @@ export default async function InventoryPage({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="inv-shelf-life" className="mb-1 block text-sm font-medium text-gray-700">
               Shelf life (days)
             </label>
             <input
+              id="inv-shelf-life"
               name="shelf_life_days"
               type="number"
               min="1"

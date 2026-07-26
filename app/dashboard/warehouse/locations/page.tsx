@@ -46,22 +46,23 @@ export default async function LocationsPage() {
         </summary>
         <form action={createWarehouse} className="grid gap-4 border-t border-gray-100 p-6 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="wh-name" className="mb-1 block text-sm font-medium text-gray-700">
               Name
             </label>
-            <input name="name" required className={inputClass} placeholder="Lagos Central Warehouse" />
+            <input id="wh-name" name="name" required className={inputClass} placeholder="Lagos Central Warehouse" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="wh-location" className="mb-1 block text-sm font-medium text-gray-700">
               Location
             </label>
-            <input name="location" required className={inputClass} placeholder="Ikeja, Lagos" />
+            <input id="wh-location" name="location" required className={inputClass} placeholder="Ikeja, Lagos" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="wh-capacity" className="mb-1 block text-sm font-medium text-gray-700">
               Capacity (units)
             </label>
             <input
+              id="wh-capacity"
               name="capacity"
               type="number"
               min="1"
@@ -70,16 +71,16 @@ export default async function LocationsPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="wh-lat" className="mb-1 block text-sm font-medium text-gray-700">
               Latitude
             </label>
-            <input name="lat" type="number" step="any" required className={inputClass} placeholder="6.6018" />
+            <input id="wh-lat" name="lat" type="number" step="any" required className={inputClass} placeholder="6.6018" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="wh-lng" className="mb-1 block text-sm font-medium text-gray-700">
               Longitude
             </label>
-            <input name="lng" type="number" step="any" required className={inputClass} placeholder="3.3515" />
+            <input id="wh-lng" name="lng" type="number" step="any" required className={inputClass} placeholder="3.3515" />
           </div>
           <div className="flex items-end">
             <SubmitButton>Save warehouse</SubmitButton>

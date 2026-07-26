@@ -37,3 +37,9 @@ next-env.d.ts
 
 # e2e artifacts
 /scripts/artifacts/
+
+# dev logs
+dev-server.log
+
+# standalone capture scripts (not part of the app)
+/scripts/capture_*.cjs

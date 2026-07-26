@@ -95,10 +95,11 @@ export default async function BrowsePage({
                 <form action={placeOrder} className="space-y-3 px-5 pb-5">
                   <input type="hidden" name="harvest_id" value={h.id} />
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-700">
+                    <label htmlFor={`qty-${h.id}`} className="mb-1 block text-xs font-medium text-gray-700">
                       Quantity ({h.unit}, max {formatNumber(Number(h.quantity))})
                     </label>
                     <input
+                      id={`qty-${h.id}`}
                       name="quantity"
                       type="number"
                       min="1"
@@ -109,10 +110,11 @@ export default async function BrowsePage({
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-700">
+                    <label htmlFor={`addr-${h.id}`} className="mb-1 block text-xs font-medium text-gray-700">
                       Delivery address
                     </label>
                     <input
+                      id={`addr-${h.id}`}
                       name="delivery_address"
                       required
                       className={inputClass}
@@ -120,10 +122,10 @@ export default async function BrowsePage({
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-700">
+                    <label htmlFor={`city-${h.id}`} className="mb-1 block text-xs font-medium text-gray-700">
                       City (used for routing)
                     </label>
-                    <select name="city_coords" className={inputClass}>
+                    <select id={`city-${h.id}`} name="city_coords" className={inputClass}>
                       {DELIVERY_CITIES.map((c) => (
                         <option key={c.name} value={`${c.lat},${c.lng}`}>
                           {c.name}

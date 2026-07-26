@@ -16,6 +16,7 @@ export function SearchForm({
         name="q"
         defaultValue={defaultValue}
         placeholder={placeholder}
+        aria-label={placeholder}
         className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:w-64"
       />
     </form>

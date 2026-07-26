@@ -47,27 +47,28 @@ export default async function CropsPage() {
         </summary>
         <form action={createCrop} className="grid gap-4 border-t border-gray-100 p-6 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="crop-name" className="mb-1 block text-sm font-medium text-gray-700">
               Crop name
             </label>
-            <input name="name" required className={inputClass} placeholder="Maize" />
+            <input id="crop-name" name="name" required className={inputClass} placeholder="Maize" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="crop-category" className="mb-1 block text-sm font-medium text-gray-700">
               Category
             </label>
-            <select name="category" className={inputClass}>
+            <select id="crop-category" name="category" className={inputClass}>
               {CROP_CATEGORIES.map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="crop-yield" className="mb-1 block text-sm font-medium text-gray-700">
               Estimated yield
             </label>
             <div className="flex gap-2">
               <input
+                id="crop-yield"
                 name="quantity_estimate"
                 type="number"
                 min="0"
@@ -85,27 +86,28 @@ export default async function CropsPage() {
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="planting-date" className="mb-1 block text-sm font-medium text-gray-700">
               Planting date
             </label>
-            <input name="planting_date" type="date" required className={inputClass} />
+            <input id="planting-date" name="planting_date" type="date" required className={inputClass} />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="harvest-date" className="mb-1 block text-sm font-medium text-gray-700">
               Expected harvest date
             </label>
-            <input
-              name="expected_harvest_date"
-              type="date"
-              required
-              className={inputClass}
-            />
+              <input
+                id="harvest-date"
+                name="expected_harvest_date"
+                type="date"
+                required
+                className={inputClass}
+              />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="crop-notes" className="mb-1 block text-sm font-medium text-gray-700">
               Notes
             </label>
-            <input name="notes" className={inputClass} placeholder="Optional" />
+            <input id="crop-notes" name="notes" className={inputClass} placeholder="Optional" />
           </div>
           <div className="sm:col-span-2 lg:col-span-3">
             <SubmitButton>Save crop</SubmitButton>

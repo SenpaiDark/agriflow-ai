@@ -59,10 +59,11 @@ export default async function ProfilePage() {
           />
           <form action={updateProfile} className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="profile-name" className="mb-1 block text-sm font-medium text-gray-700">
                 Full name
               </label>
               <input
+                id="profile-name"
                 name="full_name"
                 required
                 defaultValue={profile.full_name}
@@ -70,10 +71,11 @@ export default async function ProfilePage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="profile-phone" className="mb-1 block text-sm font-medium text-gray-700">
                 Phone
               </label>
               <input
+                id="profile-phone"
                 name="phone"
                 type="tel"
                 defaultValue={profile.phone ?? ""}
@@ -82,10 +84,11 @@ export default async function ProfilePage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="profile-location" className="mb-1 block text-sm font-medium text-gray-700">
                 Location
               </label>
               <input
+                id="profile-location"
                 name="location"
                 defaultValue={profile.location ?? ""}
                 className={inputClass}

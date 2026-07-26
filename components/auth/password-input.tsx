@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 export function PasswordInput({
+  id,
   name,
   value,
   onChange,
@@ -13,6 +14,7 @@ export function PasswordInput({
   required = true,
   forceVisible,
 }: {
+  id?: string;
   name?: string;
   value: string;
   onChange: (value: string) => void;
@@ -20,7 +22,6 @@ export function PasswordInput({
   autoComplete?: string;
   minLength?: number;
   required?: boolean;
-  /** Lets a parent (e.g. the password generator) reveal the field. */
   forceVisible?: boolean;
 }) {
   const [show, setShow] = useState(false);
@@ -29,6 +30,7 @@ export function PasswordInput({
   return (
     <div className="relative">
       <input
+        id={id}
         name={name}
         type={visible ? "text" : "password"}
         value={value}

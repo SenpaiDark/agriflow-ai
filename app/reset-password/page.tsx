@@ -64,10 +64,11 @@ export default function ResetPasswordPage() {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="new-password" className="mb-1 block text-sm font-medium text-gray-700">
             New password
           </label>
           <PasswordInput
+            id="new-password"
             value={password}
             onChange={setPassword}
             autoComplete="new-password"
@@ -76,10 +77,11 @@ export default function ResetPasswordPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="confirm-password" className="mb-1 block text-sm font-medium text-gray-700">
             Confirm new password
           </label>
           <PasswordInput
+            id="confirm-password"
             value={confirm}
             onChange={setConfirm}
             autoComplete="new-password"

@@ -47,10 +47,10 @@ export default async function HarvestsPage() {
         {(crops ?? []).length > 0 ? (
           <form action={createHarvest} className="grid gap-4 border-t border-gray-100 p-6 sm:grid-cols-2 lg:grid-cols-3">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="harvest-crop" className="mb-1 block text-sm font-medium text-gray-700">
                 Crop
               </label>
-              <select name="crop_id" required className={inputClass}>
+              <select id="harvest-crop" name="crop_id" required className={inputClass}>
                 {crops!.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -59,17 +59,18 @@ export default async function HarvestsPage() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="harvest-date-field" className="mb-1 block text-sm font-medium text-gray-700">
                 Harvest date
               </label>
-              <input name="harvest_date" type="date" required className={inputClass} />
+              <input id="harvest-date-field" name="harvest_date" type="date" required className={inputClass} />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="harvest-qty" className="mb-1 block text-sm font-medium text-gray-700">
                 Quantity
               </label>
               <div className="flex gap-2">
                 <input
+                  id="harvest-qty"
                   name="quantity"
                   type="number"
                   min="0"
@@ -87,20 +88,21 @@ export default async function HarvestsPage() {
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="harvest-grade" className="mb-1 block text-sm font-medium text-gray-700">
                 Quality grade
               </label>
-              <select name="quality_grade" className={inputClass}>
+              <select id="harvest-grade" name="quality_grade" className={inputClass}>
                 <option value="A">Grade A</option>
                 <option value="B">Grade B</option>
                 <option value="C">Grade C</option>
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="harvest-price" className="mb-1 block text-sm font-medium text-gray-700">
                 Price per unit (₦)
               </label>
               <input
+                id="harvest-price"
                 name="price_per_unit"
                 type="number"
                 min="0"
@@ -111,10 +113,11 @@ export default async function HarvestsPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="harvest-shelf-life" className="mb-1 block text-sm font-medium text-gray-700">
                 Shelf life (days)
               </label>
               <input
+                id="harvest-shelf-life"
                 name="shelf_life_days"
                 type="number"
                 min="1"
