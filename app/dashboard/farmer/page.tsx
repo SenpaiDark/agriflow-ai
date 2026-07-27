@@ -56,22 +56,22 @@ export default async function FarmerOverview() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Active crops" value={activeCrops.length} icon={Sprout} />
+        <StatCard label="Active crops" value={activeCrops.length} icon={<Sprout className="h-5 w-5" />} />
         <StatCard
           label="Harvest listings"
           value={availableHarvests.length}
-          icon={Package}
+          icon={<Package className="h-5 w-5" />}
         />
         <StatCard
           label="Pending orders"
           value={pendingOrders.length}
-          icon={ClipboardList}
+          icon={<ClipboardList className="h-5 w-5" />}
           tone={pendingOrders.length > 0 ? "warning" : "default"}
         />
         <StatCard
           label="Revenue (delivered)"
           value={formatCurrency(revenue)}
-          icon={Banknote}
+          icon={<Banknote className="h-5 w-5" />}
           tone="success"
         />
       </div>

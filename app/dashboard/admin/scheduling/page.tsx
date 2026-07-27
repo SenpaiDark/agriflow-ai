@@ -57,18 +57,18 @@ export default async function SchedulingPage() {
         <StatCard
           label="Confirmed orders waiting"
           value={confirmedCount ?? 0}
-          icon={CalendarClock}
+          icon={<CalendarClock className="h-5 w-5" />}
           tone={(confirmedCount ?? 0) > 0 ? "warning" : "default"}
         />
         <StatCard
           label="Transporters available"
           value={transporterCount ?? 0}
-          icon={Truck}
+          icon={<Truck className="h-5 w-5" />}
         />
         <StatCard
           label="Pickup warehouses"
           value={warehouseCount ?? 0}
-          icon={CalendarClock}
+          icon={<CalendarClock className="h-5 w-5" />}
         />
       </div>
 

@@ -52,22 +52,22 @@ export default async function WarehouseOverview() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Items in storage" value={inStorage.length} icon={Package} />
+        <StatCard label="Items in storage" value={inStorage.length} icon={<Package className="h-5 w-5" />} />
         <StatCard
           label="Total stock"
           value={`${formatNumber(totalQty)} units`}
-          icon={WarehouseIcon}
+          icon={<WarehouseIcon className="h-5 w-5" />}
         />
         <StatCard
           label="Expiring ≤ 3 days"
           value={expiring.length}
-          icon={AlertTriangle}
+          icon={<AlertTriangle className="h-5 w-5" />}
           tone={expiring.length > 0 ? "warning" : "default"}
         />
         <StatCard
           label="Spoiled items"
           value={spoiled.length}
-          icon={Trash2}
+          icon={<Trash2 className="h-5 w-5" />}
           tone={spoiled.length > 0 ? "danger" : "default"}
         />
       </div>

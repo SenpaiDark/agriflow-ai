@@ -37,23 +37,23 @@ export default async function TransportOverview() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Active deliveries" value={active.length} icon={Truck} />
+        <StatCard label="Active deliveries" value={active.length} icon={<Truck className="h-5 w-5" />} />
         <StatCard
           label="In transit"
           value={inTransit.length}
-          icon={Navigation}
+          icon={<Navigation className="h-5 w-5" />}
           tone={inTransit.length > 0 ? "warning" : "default"}
         />
         <StatCard
           label="Completed"
           value={done.length}
-          icon={PackageCheck}
+          icon={<PackageCheck className="h-5 w-5" />}
           tone="success"
         />
         <StatCard
           label="Total distance"
           value={`${formatNumber(Math.round(totalKm))} km`}
-          icon={Route}
+          icon={<Route className="h-5 w-5" />}
         />
       </div>
 

@@ -58,22 +58,22 @@ export default async function AdminOverview() {
         <StatCard
           label="Registered users"
           value={(profiles ?? []).length}
-          icon={Users}
+          icon={<Users className="h-5 w-5" />}
         />
         <StatCard
           label="Total orders"
           value={(orders ?? []).length}
-          icon={ClipboardList}
+          icon={<ClipboardList className="h-5 w-5" />}
         />
         <StatCard
           label="Deliveries created"
           value={deliveryCount ?? 0}
-          icon={Truck}
+          icon={<Truck className="h-5 w-5" />}
         />
         <StatCard
           label="Revenue (delivered)"
           value={formatCurrency(revenue)}
-          icon={Banknote}
+          icon={<Banknote className="h-5 w-5" />}
           tone="success"
         />
       </div>

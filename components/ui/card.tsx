@@ -3,7 +3,6 @@
 import { useRef, type ReactNode } from "react";
 import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
 
 const ROTATION_RANGE = 8;
 const TILT_RANGE = 12;
@@ -76,13 +75,13 @@ export function CardHeader({
 export function StatCard({
   label,
   value,
-  icon: Icon,
+  icon,
   hint,
   tone = "default",
 }: {
   label: string;
   value: string | number;
-  icon: LucideIcon;
+  icon: ReactNode;
   hint?: string;
   tone?: "default" | "success" | "warning" | "danger";
 }) {
@@ -100,7 +99,7 @@ export function StatCard({
           tones[tone]
         )}
       >
-        <Icon className="h-5 w-5" />
+        {icon}
       </div>
       <div className="min-w-0">
         <p className="truncate text-sm text-gray-500">{label}</p>

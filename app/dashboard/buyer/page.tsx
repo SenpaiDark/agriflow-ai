@@ -63,19 +63,19 @@ export default async function BuyerOverview() {
         <StatCard
           label="Products available"
           value={availableCount ?? 0}
-          icon={ShoppingCart}
+          icon={<ShoppingCart className="h-5 w-5" />}
         />
-        <StatCard label="Open orders" value={open.length} icon={ClipboardList} />
+        <StatCard label="Open orders" value={open.length} icon={<ClipboardList className="h-5 w-5" />} />
         <StatCard
           label="Delivered"
           value={delivered.length}
-          icon={PackageCheck}
+          icon={<PackageCheck className="h-5 w-5" />}
           tone="success"
         />
         <StatCard
           label="Total spent"
           value={formatCurrency(spent)}
-          icon={Banknote}
+          icon={<Banknote className="h-5 w-5" />}
         />
       </div>
 
