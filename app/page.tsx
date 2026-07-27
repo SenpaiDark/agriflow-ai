@@ -173,7 +173,7 @@ export default function Home() {
         <Hero />
 
         {/* Features */}
-        <section className="relative border-t border-gray-100 bg-gray-50 py-24">
+        <section className="relative border-t border-gray-100 bg-page py-24">
           <div className="mx-auto max-w-6xl px-6">
             <Reveal>
               <p className="text-center text-sm font-semibold uppercase tracking-widest text-brand">
@@ -245,7 +245,7 @@ export default function Home() {
         </section>
 
         {/* AI assistant */}
-        <section className="border-t border-gray-100 bg-gray-50 py-24">
+        <section className="border-t border-gray-100 bg-page py-24">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-2">
             <Reveal>
               <p className="text-sm font-semibold uppercase tracking-widest text-brand">
@@ -343,7 +343,7 @@ export default function Home() {
         </section>
 
         {/* Tech stack */}
-        <section className="border-t border-gray-100 bg-gray-50 py-20">
+        <section className="border-t border-gray-100 bg-page py-20">
           <div className="mx-auto max-w-4xl px-6 text-center">
             <Reveal>
               <p className="text-sm font-semibold uppercase tracking-widest text-brand">

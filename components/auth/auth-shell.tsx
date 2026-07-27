@@ -67,7 +67,7 @@ export function AuthShell({
       </div>
 
       {/* Form panel */}
-      <div className="flex w-full flex-col bg-gray-50 lg:w-1/2">
+      <div className="flex w-full flex-col bg-page lg:w-1/2">
         <div className="flex items-center justify-between px-6 py-4 lg:justify-end">
           <Link href="/" className="flex items-center gap-2 lg:hidden">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600">

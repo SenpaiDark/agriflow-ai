@@ -13,6 +13,14 @@ export const USER_ROLES: { value: UserRole; label: string }[] = [
   { value: "admin", label: "Administrator" },
 ];
 
+/** Roles a user may pick during self-registration (admin excluded). */
+export const SIGNUP_ROLES: { value: UserRole; label: string }[] = [
+  { value: "farmer", label: "Farmer" },
+  { value: "buyer", label: "Buyer" },
+  { value: "transporter", label: "Transporter" },
+  { value: "warehouse_manager", label: "Warehouse Manager" },
+];
+
 export interface Profile {
   id: string;
   full_name: string;

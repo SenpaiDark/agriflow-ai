@@ -71,11 +71,14 @@ export default async function AdminOverview() {
           icon={<Truck className="h-5 w-5" />}
         />
         <StatCard
-          label="Revenue (delivered)"
+          label="Revenue (delivered) *"
           value={formatCurrency(revenue)}
           icon={<Banknote className="h-5 w-5" />}
           tone="success"
         />
+        <p className="col-span-full -mt-2 text-xs text-gray-400">
+          * Payment gateway — coming soon
+        </p>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">

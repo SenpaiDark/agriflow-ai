@@ -15,7 +15,8 @@
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  background-color: #F8F3EE;
+  @apply text-gray-900 antialiased;
 }
 
 /* Leaflet needs an explicit height on its container */

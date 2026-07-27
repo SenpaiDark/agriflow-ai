@@ -26,7 +26,10 @@ export async function requireProfile(): Promise<Profile> {
     .eq("id", user.id)
     .single();
 
-  if (!profile) redirect("/login");
+  if (!profile) {
+    await supabase.auth.signOut();
+    redirect("/login?reason=missing_profile");
+  }
   return profile as Profile;
 }
 

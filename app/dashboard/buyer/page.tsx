@@ -73,10 +73,13 @@ export default async function BuyerOverview() {
           tone="success"
         />
         <StatCard
-          label="Total spent"
+          label="Total spent *"
           value={formatCurrency(spent)}
           icon={<Banknote className="h-5 w-5" />}
         />
+        <p className="col-span-full -mt-2 text-xs text-gray-400">
+          * Payment gateway — coming soon
+        </p>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">

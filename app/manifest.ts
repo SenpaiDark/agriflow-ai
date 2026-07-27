@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
       "AI-driven agricultural supply chain and produce scheduling platform.",
     start_url: "/dashboard",
     display: "standalone",
-    background_color: "#ffffff",
+    background_color: "#F8F3EE",
     theme_color: "#059669",
     orientation: "portrait",
     categories: ["business", "productivity"],

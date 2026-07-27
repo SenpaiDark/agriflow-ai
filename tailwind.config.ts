@@ -12,6 +12,7 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        page: "#F8F3EE",
         brand: {
           DEFAULT: "#2D5A3D",
           dark: "#1F3F2B",

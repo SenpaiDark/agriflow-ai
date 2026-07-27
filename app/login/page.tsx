@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, LogIn } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -12,12 +12,28 @@ import { PasswordInput } from "@/components/auth/password-input";
 const REMEMBER_KEY = "agriflow-remembered-email";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const reason = searchParams.get("reason");
+    if (reason === "missing_profile") {
+      setError("Account not fully set up. Please sign up again.");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     try {
@@ -162,14 +178,14 @@ export default function LoginPage() {
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-gray-50 px-2 text-gray-500">or continue with</span>
+          <span className="bg-page px-2 text-gray-500">or continue with</span>
         </div>
       </div>
 
       <button
         type="button"
         onClick={handleGoogleSignIn}
-        className="flex min-h-[44px] w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+        className="flex min-h-[44px] w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-page"
       >
         <svg viewBox="0 0 24 24" className="h-5 w-5">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
