@@ -435,12 +435,79 @@ body {
   color: #d1d5db !important;
 }
 
-/* misc */
+/* surfaces (extended) */
+.dark .bg-gray-300,
+.dark .bg-gray-400,
+.dark .bg-gray-500,
+.dark .bg-gray-600,
+.dark .bg-gray-700,
+.dark .bg-gray-800 {
+  background-color: #374151;
+}
+.dark .bg-page {
+  background-color: #111827;
+}
+.dark .bg-white\/10,
+.dark .bg-white\/15,
+.dark .bg-white\/20,
+.dark .bg-white\/25,
+.dark .bg-white\/40 {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+.dark .hover\:bg-white\/20:hover,
+.dark .hover\:bg-white\/25:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* borders (extended) */
+.dark .border-gray-400,
+.dark .border-gray-500 {
+  border-color: #4b5563;
+}
+.dark .border-white\/20,
+.dark .border-white\/25,
+.dark .border-white\/30 {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #374151;
+}
+
+/* text (extended) */
+.dark .text-gray-300 {
+  color: #9ca3af;
+}
+.dark .text-gray-200 {
+  color: #d1d5db;
+}
+.dark .text-gray-100 {
+  color: #e5e7eb;
+}
+
+/* hover states (extended) */
+.dark .hover\:bg-gray-200:hover {
+  background-color: #374151;
+}
+
+/* shadows */
+.dark .shadow,
 .dark .shadow-sm,
+.dark .shadow-md,
 .dark .shadow-lg,
-.dark .shadow-xl {
+.dark .shadow-xl,
+.dark .shadow-2xl,
+.dark .shadow-inner {
   --tw-shadow-color: rgba(0, 0, 0, 0.5);
   --tw-shadow: var(--tw-shadow-colored);
+}
+
+/* ring / outline */
+.dark .ring-1,
+.dark .ring-2 {
+  --tw-ring-color: rgba(55, 65, 81, 1);
+}
+.dark .outline {
+  outline-color: #374151;
 }
 
 /* ---------------------------------------------------------------------------
